@@ -1,0 +1,623 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UP Board Class 12 Quiz</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e0e7ff, #fce7f3);
+    color: #222;
+}
+
+header {
+    background: linear-gradient(135deg, #4338ca, #7c3aed);
+    color: white;
+    text-align: center;
+    padding: 25px 12px;
+}
+
+header h1 {
+    margin: 0 0 10px;
+    font-size: 27px;
+}
+
+header p {
+    margin: 0;
+}
+
+.container {
+    max-width: 700px;
+    margin: 25px auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px #00000012;
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #4338ca;
+    margin-top: 0;
+}
+
+select, button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 12px;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+select {
+    border: 1px solid #ccc;
+    background: white;
+}
+
+button {
+    border: none;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #3730a3;
+}
+
+button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    font-weight: bold;
+}
+
+.question {
+    font-size: 19px;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.option {
+    display: block;
+    padding: 13px;
+    margin: 10px 0;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.option:hover {
+    border-color: #818cf8;
+    background: #eef2ff;
+}
+
+.option input {
+    margin-right: 9px;
+}
+
+#feedback {
+    margin-top: 15px;
+    font-weight: bold;
+    line-height: 1.6;
+}
+
+.hidden {
+    display: none;
+}
+
+#result {
+    text-align: center;
+}
+
+.score {
+    font-size: 32px;
+    font-weight: bold;
+    color: #4338ca;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>📚 UP Board Quiz</h1>
+    <p>कक्षा 12 | हिंदी माध्यम | बोर्ड परीक्षा की तैयारी</p>
+</header>
+
+<div class="container">
+
+    <section class="card" id="setup">
+        <h2>अपना विषय चुनें</h2>
+
+        <label for="subject">विषय:</label>
+        <select id="subject">
+            <option value="Physics">भौतिक विज्ञान (Physics)</option>
+            <option value="Chemistry">रसायन विज्ञान (Chemistry)</option>
+            <option value="Maths">गणित (Mathematics)</option>
+        </select>
+
+        <p>प्रश्नों की संख्या चुनें:</p>
+        <select id="count">
+            <option value="5">5 प्रश्न</option>
+            <option value="10">10 प्रश्न</option>
+        </select>
+
+        <button onclick="startQuiz()">क्विज शुरू करें 🚀</button>
+    </section>
+
+    <section class="card hidden" id="quiz">
+        <div class="info">
+            <span id="progress">प्रश्न 1</span>
+            <span id="timer">समय: 05:00</span>
+            <span id="liveScore">स्कोर: 0</span>
+        </div>
+
+        <div id="question" class="question"></div>
+        <div id="options"></div>
+        <div id="feedback" aria-live="polite"></div>
+
+        <button id="nextBtn" onclick="nextQuestion()" disabled>
+            अगला प्रश्न →
+        </button>
+    </section>
+
+    <section class="card hidden" id="result">
+        <h2>🎉 आपका परिणाम</h2>
+        <p id="subjectResult"></p>
+        <p class="score" id="finalScore"></p>
+        <p id="percentage"></p>
+        <p id="message"></p>
+        <div id="review"></div>
+        <button onclick="restartQuiz()">दोबारा क्विज दें 🔄</button>
+    </section>
+
+</div>
+
+<footer>
+    मेहनत करते रहो, सफलता जरूर मिलेगी! 💜
+</footer>
+
+<script>
+const questionBank = {
+    Physics: [
+        {
+            q: "विद्युत धारा का SI मात्रक क्या है?",
+            options: ["वोल्ट", "एम्पियर", "ओम", "वाट"],
+            answer: 1
+        },
+        {
+            q: "ओम का नियम किस संबंध को दर्शाता है?",
+            options: [
+                "V = IR",
+                "P = VI",
+                "F = ma",
+                "E = mc²"
+            ],
+            answer: 0
+        },
+        {
+            q: "निर्वात में प्रकाश की चाल लगभग कितनी है?",
+            options: [
+                "3 × 10⁶ m/s",
+                "3 × 10⁷ m/s",
+                "3 × 10⁸ m/s",
+                "3 × 10⁹ m/s"
+            ],
+            answer: 2
+        },
+        {
+            q: "विद्युत प्रतिरोध का SI मात्रक क्या है?",
+            options: ["ओम", "एम्पियर", "कूलॉम", "टेस्ला"],
+            answer: 0
+        },
+        {
+            q: "लेंस की शक्ति का SI मात्रक क्या है?",
+            options: ["मीटर", "डायोप्टर", "न्यूटन", "जूल"],
+            answer: 1
+        },
+        {
+            q: "विद्युत आवेश का SI मात्रक क्या है?",
+            options: ["कूलॉम", "वोल्ट", "वाट", "ओम"],
+            answer: 0
+        },
+        {
+            q: "ट्रांसफॉर्मर किस सिद्धांत पर कार्य करता है?",
+            options: [
+                "विद्युत अपघटन",
+                "पारस्परिक प्रेरण",
+                "प्रकाश का परावर्तन",
+                "ऊष्मीय प्रसार"
+            ],
+            answer: 1
+        },
+        {
+            q: "प्रकाश विद्युत प्रभाव में इलेक्ट्रॉन किससे निकलते हैं?",
+            options: [
+                "धातु की सतह से प्रकाश पड़ने पर",
+                "केवल ध्वनि से",
+                "केवल ठंडा करने पर",
+                "गुरुत्वाकर्षण से"
+            ],
+            answer: 0
+        },
+        {
+            q: "संधारित्र की धारिता का SI मात्रक क्या है?",
+            options: ["फैरड", "हेनरी", "वेबर", "टेस्ला"],
+            answer: 0
+        },
+        {
+            q: "चुंबकीय क्षेत्र का SI मात्रक क्या है?",
+            options: ["टेस्ला", "जूल", "कूलॉम", "वोल्ट"],
+            answer: 0
+        }
+    ],
+
+    Chemistry: [
+        {
+            q: "जल का रासायनिक सूत्र क्या है?",
+            options: ["CO₂", "H₂O", "NaCl", "O₂"],
+            answer: 1
+        },
+        {
+            q: "pH मान 7 वाला विलयन सामान्यतः कैसा होता है?",
+            options: ["अम्लीय", "क्षारीय", "उदासीन", "धात्विक"],
+            answer: 2
+        },
+        {
+            q: "सोडियम का रासायनिक संकेत क्या है?",
+            options: ["S", "So", "Na", "N"],
+            answer: 2
+        },
+        {
+            q: "ऑक्सीकरण में सामान्यतः क्या होता है?",
+            options: [
+                "इलेक्ट्रॉन का त्याग",
+                "इलेक्ट्रॉन का ग्रहण",
+                "न्यूट्रॉन का त्याग",
+                "प्रोटॉन का नष्ट होना"
+            ],
+            answer: 0
+        },
+        {
+            q: "आवर्त सारणी के आधुनिक रूप का आधार क्या है?",
+            options: [
+                "परमाणु द्रव्यमान",
+                "परमाणु संख्या",
+                "घनत्व",
+                "गलनांक"
+            ],
+            answer: 1
+        },
+        {
+            q: "NaCl का सामान्य नाम क्या है?",
+            options: ["बेकिंग सोडा", "साधारण नमक", "चीनी", "चूना"],
+            answer: 1
+        },
+        {
+            q: "उत्प्रेरक का मुख्य कार्य क्या है?",
+            options: [
+                "अभिक्रिया की दर बदलना",
+                "हमेशा उत्पाद बढ़ाना",
+                "परमाणु संख्या बदलना",
+                "द्रव्यमान नष्ट करना"
+            ],
+            answer: 0
+        },
+        {
+            q: "एक मोल में लगभग कितने कण होते हैं?",
+            options: [
+                "6.022 × 10²³",
+                "3 × 10⁸",
+                "9.8",
+                "1.6 × 10⁻¹⁹"
+            ],
+            answer: 0
+        },
+        {
+            q: "कार्बनिक रसायन में प्रमुख तत्व कौन-सा है?",
+            options: ["सोडियम", "कार्बन", "कैल्शियम", "हीलियम"],
+            answer: 1
+        },
+        {
+            q: "उत्कृष्ट गैसें आवर्त सारणी के किस समूह में हैं?",
+            options: ["समूह 1", "समूह 2", "समूह 17", "समूह 18"],
+            answer: 3
+        }
+    ],
+
+    Maths: [
+        {
+            q: "sin²θ + cos²θ का मान क्या है?",
+            options: ["0", "1", "2", "θ"],
+            answer: 1
+        },
+        {
+            q: "d(x²)/dx का मान क्या है?",
+            options: ["x", "2x", "x²", "2"],
+            answer: 1
+        },
+        {
+            q: "log₁₀(100) का मान क्या है?",
+            options: ["1", "2", "10", "100"],
+            answer: 1
+        },
+        {
+            q: "एक निश्चित घटना की प्रायिकता कितनी होती है?",
+            options: ["0", "1/2", "1", "2"],
+            answer: 2
+        },
+        {
+            q: "3 × 3 क्रम के इकाई आव्यूह का सारणिक क्या है?",
+            options: ["0", "1", "3", "9"],
+            answer: 1
+        },
+        {
+            q: "यदि A = {1, 2} और B = {2, 3}, तो A ∩ B क्या है?",
+            options: ["{1}", "{2}", "{3}", "{1, 2, 3}"],
+            answer: 1
+        },
+        {
+            q: "d(sin x)/dx क्या है?",
+            options: ["cos x", "-cos x", "sin x", "-sin x"],
+            answer: 0
+        },
+        {
+            q: "∫1 dx का अनिश्चित समाकलन क्या है?",
+            options: ["1", "x + C", "x² + C", "C"],
+            answer: 1
+        },
+        {
+            q: "दो लंबवत सदिशों का डॉट गुणनफल क्या होता है?",
+            options: ["1", "-1", "0", "उनकी लंबाइयों का योग"],
+            answer: 2
+        },
+        {
+            q: "tan 45° का मान क्या है?",
+            options: ["0", "1", "√3", "1/√3"],
+            answer: 1
+        }
+    ]
+};
+
+let questions = [];
+let current = 0;
+let score = 0;
+let seconds = 300;
+let timerInterval;
+let answered = false;
+let wrongAnswers = [];
+let selectedSubject = "";
+
+function startQuiz() {
+    selectedSubject = document.getElementById("subject").value;
+
+    const count = Number(document.getElementById("count").value);
+
+    questions = questionBank[selectedSubject].slice(0, count);
+    current = 0;
+    score = 0;
+    seconds = 300;
+    answered = false;
+    wrongAnswers = [];
+
+    document.getElementById("setup").classList.add("hidden");
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("quiz").classList.remove("hidden");
+
+    clearInterval(timerInterval);
+    showQuestion();
+    updateTimer();
+
+    timerInterval = setInterval(function() {
+        seconds--;
+        updateTimer();
+
+        if (seconds <= 0) {
+            finishQuiz();
+        }
+    }, 1000);
+}
+
+function updateTimer() {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+
+    document.getElementById("timer").textContent =
+        "समय: " +
+        String(min).padStart(2, "0") + ":" +
+        String(sec).padStart(2, "0");
+}
+
+function showQuestion() {
+    answered = false;
+
+    const q = questions[current];
+
+    document.getElementById("progress").textContent =
+        "प्रश्न " + (current + 1) + "/" + questions.length;
+
+    document.getElementById("liveScore").textContent =
+        "स्कोर: " + score;
+
+    document.getElementById("question").textContent = q.q;
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    document.getElementById("feedback").textContent = "";
+
+    q.options.forEach(function(option, index) {
+        const label = document.createElement("label");
+        label.className = "option";
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "answer";
+        radio.value = index;
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(option));
+        optionsDiv.appendChild(label);
+    });
+
+    document.getElementById("nextBtn").disabled = true;
+
+    document.querySelectorAll('input[name="answer"]').forEach(function(radio) {
+        radio.addEventListener("change", checkAnswer);
+    });
+
+    document.getElementById("nextBtn").textContent =
+        current === questions.length - 1
+        ? "परिणाम देखें"
+        : "अगला प्रश्न →";
+}
+
+function checkAnswer() {
+    if (answered) return;
+
+    const selected = document.querySelector('input[name="answer"]:checked');
+    if (!selected) return;
+
+    answered = true;
+
+    const chosen = Number(selected.value);
+    const q = questions[current];
+    const correct = chosen === q.answer;
+
+    if (correct) {
+        score++;
+        document.getElementById("feedback").textContent =
+            "✅ सही उत्तर! " + q.options[q.answer];
+    } else {
+        document.getElementById("feedback").textContent =
+            "❌ सही उत्तर: " + q.options[q.answer];
+
+        wrongAnswers.push({
+            question: q.q,
+            chosen: q.options[chosen],
+            correct: q.options[q.answer]
+        });
+    }
+
+    document.querySelectorAll('input[name="answer"]').forEach(function(radio) {
+        radio.disabled = true;
+    });
+
+    document.getElementById("liveScore").textContent =
+        "स्कोर: " + score;
+
+    document.getElementById("nextBtn").disabled = false;
+}
+
+function nextQuestion() {
+    if (!answered) return;
+
+    current++;
+
+    if (current < questions.length) {
+        showQuestion();
+    } else {
+        finishQuiz();
+    }
+}
+
+function finishQuiz() {
+    clearInterval(timerInterval);
+
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+
+    const total = questions.length;
+    const percent = Math.round((score / total) * 100);
+
+    document.getElementById("subjectResult").textContent =
+        "विषय: " + getSubjectName(selectedSubject);
+
+    document.getElementById("finalScore").textContent =
+        score + " / " + total;
+
+    document.getElementById("percentage").textContent =
+        "आपका प्रतिशत: " + percent + "%";
+
+    let message;
+
+    if (percent >= 80) {
+        message = "बहुत बढ़िया! आपकी तैयारी अच्छी है। 🎉";
+    } else if (percent >= 50) {
+        message = "अच्छा प्रयास! थोड़ी और प्रैक्टिस करें। 👍";
+    } else {
+        message = "निराश न हों। उत्तर दोहराएँ और फिर प्रयास करें। 💪";
+    }
+
+    document.getElementById("message").textContent = message;
+
+    const review = document.getElementById("review");
+    review.innerHTML = "";
+
+    if (wrongAnswers.length > 0) {
+        const heading = document.createElement("h3");
+        heading.textContent = "गलत उत्तरों की समीक्षा";
+        review.appendChild(heading);
+
+        wrongAnswers.forEach(function(item, index) {
+            const p = document.createElement("p");
+            p.textContent =
+                (index + 1) + ". " + item.question +
+                " | आपका उत्तर: " + item.chosen +
+                " | सही उत्तर: " + item.correct;
+            review.appendChild(p);
+        });
+    } else {
+        review.textContent = "शानदार! आपने सभी प्रश्न सही किए।";
+    }
+}
+
+function getSubjectName(subject) {
+    const names = {
+        Physics: "भौतिक विज्ञान",
+        Chemistry: "रसायन विज्ञान",
+        Maths: "गणित"
+    };
+
+    return names[subject];
+}
+
+function restartQuiz() {
+    clearInterval(timerInterval);
+
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("setup").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
